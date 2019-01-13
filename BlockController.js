@@ -22,11 +22,18 @@ class BlockController {
      * Implement a GET Endpoint to retrieve a block by index, url: "/api/block/:index"
      */
     getBlockByIndex() {
-        this.app.get("/api/block/:index", (req, res) => {
+        this.app.get("/block/:index", (req, res) => {
             // Add your code here
             if (!req.params) return res.sendStatus(400)
-            let block = this.blocks[req.params.index];
-            res.send('you get a block:\n' + JSON.stringify(block));
+            //let block = this.blocks[req.params.index];
+            //res.send('you get a block:\n' + JSON.stringify(block));
+            if(req.params.index >= this.blocks.length) return res.send("The height is out of bounds!")
+            for (let index = 0; index < this.blocks.length; index++) {
+                if(this.blocks[index].height == req.params.index){
+                    res.send('you get a block:\n' + JSON.stringify(this.blocks[index]));
+                    break;
+                }
+            }
         });
     }
 
@@ -34,15 +41,17 @@ class BlockController {
      * Implement a POST Endpoint to add a new Block, url: "/api/block"
      */
     postNewBlock() {
-        this.app.post("/api/block", (req, res) => {
+        this.app.post("/block", (req, res) => {
             // Add your code here
             if (!req.body) return res.sendStatus(400)
+            if(!req.body.body) return res.send("The body cannot be empty!")
             let data = req.body.body;
             let blockAux = new BlockClass.Block(data);
-            blockAux.height = this.blocks[this.blocks.length-1];
+            blockAux.height = this.blocks.length;
             blockAux.hash = SHA256(JSON.stringify(blockAux)).toString();
             this.blocks.push(blockAux);
-            res.send('you post a block:\n' + JSON.stringify(this.blocks));
+            
+            res.send('you post a block:\n' + JSON.stringify(this.blocks[this.blocks.length-1]));
         });
     }
 
